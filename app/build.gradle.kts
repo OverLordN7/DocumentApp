@@ -71,4 +71,8 @@ dependencies {
     implementation(libs.play.services.mlkit.document.scanner)
     // Image processing
     implementation(libs.coil.compose)
+
+    //Extended icons
+    implementation(libs.androidx.material.icons.extended)
+
 }

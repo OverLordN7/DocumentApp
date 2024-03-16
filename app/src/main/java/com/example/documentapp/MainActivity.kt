@@ -13,16 +13,26 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.documentapp.ui.theme.DocumentAppTheme
@@ -42,17 +51,16 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val options = GmsDocumentScannerOptions.Builder()
             .setScannerMode(SCANNER_MODE_FULL)
             .setGalleryImportAllowed(true)
-            .setPageLimit(5).setResultFormats(RESULT_FORMAT_PDF, RESULT_FORMAT_JPEG)
+            .setPageLimit(10)
+            .setResultFormats(RESULT_FORMAT_PDF, RESULT_FORMAT_JPEG)
             .build()
 
         val scanner = GmsDocumentScanning.getClient(options)
@@ -65,7 +73,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var imageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
-                    var pdfUri by remember { mutableStateOf<Uri?>(null) }
                     val scannerLauncher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.StartIntentSenderForResult(),
                         onResult = {
@@ -74,11 +81,9 @@ class MainActivity : ComponentActivity() {
                                 imageUris = result?.pages?.map { it.imageUri } ?: emptyList()
 
                                 result?.pdf?.let {pdf->
-                                    pdfUri = pdf.uri
                                     savePdfToDownloads(pdf.uri)
                                 }
                             }
-
                             Toast.makeText(
                                 this,
                                 "Success!! pdf saved into Download/ folder",
@@ -86,43 +91,62 @@ class MainActivity : ComponentActivity() {
                             ).show()
                         }
                     )
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = { TopAppBar(title = { Text(text = applicationContext.getString(R.string.app_name))})},
+                        bottomBar = {
+                            BottomAppBar(
+                                actions = {
+                                    IconButton(onClick = { openDownloadsFolder() }) {
+                                        Icon(imageVector = Icons.Default.Folder, contentDescription = null )
+                                    }
+                                },
+                                floatingActionButton = {
+                                    FloatingActionButton(
+                                        shape = CircleShape,
+                                        modifier = Modifier,
+                                        onClick = {
+                                            scanner.getStartScanIntent(this@MainActivity)
+                                                .addOnSuccessListener {
+                                                    scannerLauncher.launch(
+                                                        IntentSenderRequest.Builder(it).build()
+                                                    )
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        imageUris.forEach { uri->
-                            AsyncImage(
-                                model = uri,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier.fillMaxWidth()
+                                                }.addOnFailureListener {
+                                                    Toast.makeText(
+                                                        applicationContext,
+                                                        it.message,
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                        }
+                                    ) {
+                                        Icon(imageVector = Icons.Default.Camera,
+                                            contentDescription = null,
+                                        )
+                                    }
+                                },
                             )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = {
-                            scanner.getStartScanIntent(this@MainActivity)
-                                .addOnSuccessListener {
-                                    scannerLauncher.launch(
-                                        IntentSenderRequest.Builder(it).build()
-                                    )
+                        },
+                        floatingActionButtonPosition = FabPosition.Center,
 
-                                }.addOnFailureListener {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        it.message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                        }) {
-                            Text(text = "Scan PDF")
-                        }
-
-                        Button(onClick = { openDownloadsFolder() }) {
-                            Text(text = "Open Downloads Folder")
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(it)
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            imageUris.forEach { uri->
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillWidth,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
@@ -145,18 +169,15 @@ class MainActivity : ComponentActivity() {
         val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val fileUri = FileProvider.getUriForFile(this, "${this.packageName}.fileprovider", downloadsDir)
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(fileUri, "*/*") // Любой тип файлов
+        intent.setDataAndType(fileUri, "*/*")
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Предоставить разрешение на чтение
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            // Обработка случая, когда нет приложения для обработки Intent
-            Toast.makeText(this, "Нет приложения для открытия проводника", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "no applications found as provider", Toast.LENGTH_SHORT).show()
         }
     }
-
-
     private fun getFileInDownloads(fileName: String): File {
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
