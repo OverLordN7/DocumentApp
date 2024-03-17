@@ -66,4 +66,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //ML dependencies
+    implementation(libs.play.services.mlkit.document.scanner)
+    // Image processing
+    implementation(libs.coil.compose)
+
+    //Extended icons
+    implementation(libs.androidx.material.icons.extended)
+
 }
