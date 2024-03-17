@@ -44,14 +44,13 @@ The application requires:
 * Target SDK: 34 (Android 13)
 
 ## Screenshots
-<img src=screenshots/screen1.png width = "800"> 
-<img src=screenshots/screen2.png width = "800"> 
+<img src=screenshots/screen1.png width = "800" alt="screenshot">
 
 
 
 ## Credits
-A great thanks to [Philipp Lackner](https://www.youtube.com/watch?v=LJ4VGS-tRFM) for help with ml-kit api and project in android.
-App logo is created using [perchance.org](https://perchance.org/ai-photo-generator)
+* A great thanks to [Philipp Lackner](https://www.youtube.com/watch?v=LJ4VGS-tRFM) for help with ml-kit api and project in android.
+* App logo is created using [perchance.org](https://perchance.org/ai-photo-generator)
 
 
 ## License
