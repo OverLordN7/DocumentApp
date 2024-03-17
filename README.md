@@ -1,24 +1,5 @@
-# DocumentApp
- 
-
-using tutorial from Philipp Lackner https://www.youtube.com/watch?v=LJ4VGS-tRFM
-
-
-Jetpack Compose: Utilized for building a modern and responsive user interface.
-Google Mobile Services (GMS): Integrated for document scanning functionality and access to device features.
-Android Activity Result API: Used for handling activity results, such as scanning and saving documents.
-FileProvider: Implemented for secure and efficient file sharing and access.
-Kotlin: The primary programming language used for developing the app, known for its conciseness and safety features.
-Android Storage Access Framework: Leveraged for accessing and managing files on the device, including saving scanned documents.
-Material Design Components: Incorporated to ensure a consistent and visually appealing user experience.
-
-
-
-
-
-
 # Project's Title
-### SmartList
+### DocumentApp
 
 ## Project Description
 DocumentApp, offers a seamless solution for scanning documents directly from your mobile device.
@@ -70,7 +51,7 @@ The application requires:
 
 ## Credits
 A great thanks to [Philipp Lackner](https://www.youtube.com/watch?v=LJ4VGS-tRFM) for help with ml-kit api and project in android.
-App logo is created using [perchance.org] (https://perchance.org/ai-photo-generator)
+App logo is created using [perchance.org](https://perchance.org/ai-photo-generator)
 
 
 ## License
